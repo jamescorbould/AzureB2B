@@ -1,0 +1,400 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "servicebus_1_Connection_Name": {
+      "type": "string",
+      "defaultValue": "servicebus-1"
+    },
+    "servicebus_1_Connection_DisplayName": {
+      "type": "string",
+      "defaultValue": "ServiceBusConnectionStarkIndustries"
+    },
+    "servicebus_1_connectionString": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure Service Bus Connection String"
+      }
+    },
+    "LogicAppLocation": {
+      "type": "string",
+      "minLength": 1,
+      "allowedValues": [
+        "[resourceGroup().location]",
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "northcentralus",
+        "southcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westus2"
+      ],
+      "defaultValue": "australiasoutheast"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Evaluate_if_PO_BatchTotal_is_less_than_200K": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "less": [
+                      "@triggerBody()?['BatchTotal']",
+                      200000
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Set_variable_CBRFilter_Low_Priority": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "CBRFilter",
+                    "value": {
+                      "CBRFilter_0": "PriorityLow"
+                    }
+                  },
+                  "runAfter": {}
+                }
+              },
+              "runAfter": {
+                "Initialize_variable_CBRFilter": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Set_variable_CBRFilter_High_Priority": {
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "CBRFilter",
+                      "value": {
+                        "CBRFilter_0": "PriorityHigh"
+                      }
+                    },
+                    "runAfter": {}
+                  }
+                }
+              }
+            },
+            "Initialize_variable_CBRFilter": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "CBRFilter",
+                    "type": "Object"
+                  }
+                ]
+              },
+              "runAfter": {}
+            },
+            "Send_PO_Batch_with_Priority_Assigned": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['servicebus_1']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "body": {
+                  "ContentData": "@{base64(triggerBody())}",
+                  "ContentType": "text/json",
+                  "Properties": "@variables('CBRFilter')"
+                },
+                "path": "/@{encodeURIComponent(encodeURIComponent('purchaseorder'))}/messages",
+                "queries": {
+                  "systemProperties": "Run Details"
+                }
+              },
+              "runAfter": {
+                "Evaluate_if_PO_BatchTotal_is_less_than_200K": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "BatchTotal": {
+                      "type": "number"
+                    },
+                    "PurchaseOrders": {
+                      "items": {
+                        "properties": {
+                          "AttentionTo": {
+                            "type": "string"
+                          },
+                          "BrandingThemeID": {
+                            "type": "string"
+                          },
+                          "Contact": {
+                            "properties": {
+                              "ContactID": {
+                                "type": "string"
+                              },
+                              "ContactStatus": {
+                                "type": "string"
+                              },
+                              "DefaultCurrency": {
+                                "type": "string"
+                              },
+                              "FirstName": {
+                                "type": "string"
+                              },
+                              "LastName": {
+                                "type": "string"
+                              },
+                              "Name": {
+                                "type": "string"
+                              },
+                              "Phones": {
+                                "items": {
+                                  "properties": {
+                                    "PhoneAreaCode": {
+                                      "type": "string"
+                                    },
+                                    "PhoneNumber": {
+                                      "type": "string"
+                                    },
+                                    "PhoneType": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "PhoneType",
+                                    "PhoneNumber",
+                                    "PhoneAreaCode"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "UpdatedDateUTC": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "CurrencyCode": {
+                            "type": "string"
+                          },
+                          "CurrencyRate": {
+                            "type": "integer"
+                          },
+                          "Date": {
+                            "type": "string"
+                          },
+                          "DateString": {
+                            "type": "string"
+                          },
+                          "DeliveryAddress": {
+                            "type": "string"
+                          },
+                          "DeliveryDate": {
+                            "type": "string"
+                          },
+                          "DeliveryDateString": {
+                            "type": "string"
+                          },
+                          "DeliveryInstructions": {
+                            "type": "string"
+                          },
+                          "ExpectedArrivalDate": {
+                            "type": "string"
+                          },
+                          "ExpectedArrivalDateString": {
+                            "type": "string"
+                          },
+                          "HasAttachments": {
+                            "type": "boolean"
+                          },
+                          "IsDiscounted": {
+                            "type": "boolean"
+                          },
+                          "LineAmountTypes": {
+                            "type": "string"
+                          },
+                          "LineItems": {
+                            "items": {
+                              "properties": {
+                                "Description": {
+                                  "type": "string"
+                                },
+                                "LineAmount": {
+                                  "type": "integer"
+                                },
+                                "LineItemID": {
+                                  "type": "string"
+                                },
+                                "Quantity": {
+                                  "type": "integer"
+                                },
+                                "TaxAmount": {
+                                  "type": "integer"
+                                },
+                                "TaxType": {
+                                  "type": "string"
+                                },
+                                "UnitAmount": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "Description",
+                                "UnitAmount",
+                                "TaxType",
+                                "TaxAmount",
+                                "LineAmount",
+                                "Quantity",
+                                "LineItemID"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "PurchaseOrderID": {
+                            "type": "string"
+                          },
+                          "PurchaseOrderNumber": {
+                            "type": "string"
+                          },
+                          "Reference": {
+                            "type": "string"
+                          },
+                          "Status": {
+                            "type": "string"
+                          },
+                          "SubTotal": {
+                            "type": "integer"
+                          },
+                          "Telephone": {
+                            "type": "string"
+                          },
+                          "Total": {
+                            "type": "integer"
+                          },
+                          "TotalTax": {
+                            "type": "integer"
+                          },
+                          "Type": {
+                            "type": "string"
+                          },
+                          "UpdatedDateUTC": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "PurchaseOrderID",
+                          "PurchaseOrderNumber",
+                          "DateString",
+                          "Date",
+                          "DeliveryDateString",
+                          "DeliveryDate",
+                          "DeliveryAddress",
+                          "AttentionTo",
+                          "Telephone",
+                          "DeliveryInstructions",
+                          "IsDiscounted",
+                          "Reference",
+                          "Type",
+                          "CurrencyRate",
+                          "CurrencyCode",
+                          "Contact",
+                          "BrandingThemeID",
+                          "Status",
+                          "LineAmountTypes",
+                          "LineItems",
+                          "SubTotal",
+                          "TotalTax",
+                          "Total",
+                          "UpdatedDateUTC"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "servicebus_1": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'australiasoutheast', '/managedApis/', 'servicebus')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('servicebus_1_Connection_Name'))]",
+                "connectionName": "[parameters('servicebus_1_Connection_Name')]"
+              }
+            }
+          }
+        }
+      },
+      "name": "b2b.processpurchaseorder.servicebus",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[parameters('LogicAppLocation')]",
+      "tags": {},
+      "apiVersion": "2016-06-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', parameters('servicebus_1_Connection_Name'))]"
+      ]
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2016-06-01",
+      "name": "[parameters('servicebus_1_Connection_Name')]",
+      "location": "australiasoutheast",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'australiasoutheast', '/managedApis/', 'servicebus')]"
+        },
+        "displayName": "[parameters('servicebus_1_Connection_DisplayName')]",
+        "parameterValues": {
+          "connectionString": "[parameters('servicebus_1_connectionString')]"
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

@@ -47,6 +47,14 @@
         "westus2"
       ],
       "defaultValue": "australiasoutheast"
+    },
+    "CBRHigh-armparam": {
+      "type": "string",
+      "defaultValue": "PriorityHigh"
+    },
+    "CBRLow-armparam": {
+      "type": "string",
+      "defaultValue": "PriorityLow"
     }
   },
   "variables": {},
@@ -143,6 +151,14 @@
             "$connections": {
               "defaultValue": {},
               "type": "Object"
+            },
+            "CBRHigh": {
+              "defaultValue": "PriorityHigh",
+              "type": "string"
+            },
+            "CBRLow": {
+              "defaultValue": "PriorityLow",
+              "type": "string"
             }
           },
           "triggers": {
@@ -368,6 +384,12 @@
                 "connectionName": "[parameters('servicebus_1_Connection_Name')]"
               }
             }
+          },
+          "CBRHigh": {
+            "value": "[parameters('CBRHigh-armparam')]"
+          },
+          "CBRLow": {
+            "value": "[parameters('CBRLow-armparam')]"
           }
         }
       },

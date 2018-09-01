@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "CBRHigh": { "value": "PriorityHigh-Prod" },
+      "CBRLow": { "value": "PriorityLow-Prod" },
+    "servicebus_1_connectionString": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/c27c9598-e706-4e7f-9e4d-346a66928e95/resourceGroups/StarkIndustries_RG_Infra/providers/Microsoft.KeyVault/vaults/StarkIndustriesVault"
+        },
+        "secretName": "ServiceBusConnectionStringCI"
+      }
+    }
+  }
+}

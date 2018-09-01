@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Stark.B2B.LogicApps", "AzureStarkB2BResourceGroup\Stark.B2B.LogicApps.deployproj", "{F8F3DF9E-CA1B-4200-A558-FE218FB4A316}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F8F3DF9E-CA1B-4200-A558-FE218FB4A316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8F3DF9E-CA1B-4200-A558-FE218FB4A316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8F3DF9E-CA1B-4200-A558-FE218FB4A316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8F3DF9E-CA1B-4200-A558-FE218FB4A316}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2C7710EF-981A-40ED-992C-7510C43B1BD2}
+	EndGlobalSection
+EndGlobal

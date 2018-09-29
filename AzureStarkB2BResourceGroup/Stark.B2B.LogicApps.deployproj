@@ -34,6 +34,7 @@
     <None Include="LogicApps.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="PostmanCollection\Stark.postman_collection.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>

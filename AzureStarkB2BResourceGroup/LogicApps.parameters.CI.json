@@ -2,8 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-      "CBRHigh": { "value": "PriorityHigh-Prod" },
-      "CBRLow": { "value": "PriorityLow-Prod" },
+    "Mode": {
+      "value": "Test"
+    },
     "servicebus_1_connectionString": {
       "reference": {
         "keyVault": {
